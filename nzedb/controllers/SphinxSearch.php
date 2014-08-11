@@ -91,11 +91,15 @@ class SphinxSearch
 			if ($identifiers['i'] !== false) {
 				$this->sphinxQL->queryExec(
 								sprintf('
-									DELETE r, rf
-									FROM releases_rt r
-									LEFT OUTER JOIN releasefiles rf
-										ON rf.releaseid = r.id
-									WHERE r1.id = %s',
+									DELETE
+									FROM releases_rt
+									WHERE id = %s',
+									$identifiers['i']));
+				$this->sphinxQL->queryExec(
+								sprintf('
+									DELETE
+									FROM releasefiles_rt
+									WHERE id = %s',
 									$identifiers['i']));
 			}
 		}
