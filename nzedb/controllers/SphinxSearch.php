@@ -55,6 +55,24 @@ class SphinxSearch
 	}
 
 	/**
+	 * Insert release filenames into Sphinx RT table.
+	 * @param $parameters
+	 */
+	public function insertReleaseFiles($parameters)
+	{
+		if (!is_null($this->sphinxQL) && $parameters['id']) {
+			$this->sphinxQL->queryExec(
+				sprintf(
+					'REPLACE INTO releasefiles_rt (id, releaseid, name) VALUES (%s, %s, %s)',
+					$parameters['id'],
+					$parameters['releaseid'],
+					$parameters['name']
+				)
+			);
+		}
+	}
+
+	/**
 	 * Delete release from Sphinx RT table.
 	 * @param array $identifiers ['g' => Release GUID(mandatory), 'id => ReleaseID(optional, pass false)]
 	 * @param nzedb\db\Settings $pdo
@@ -71,7 +89,14 @@ class SphinxSearch
 				}
 			}
 			if ($identifiers['i'] !== false) {
-				$this->sphinxQL->queryExec(sprintf('DELETE FROM releases_rt WHERE id = %s', $identifiers['i']));
+				$this->sphinxQL->queryExec(
+								sprintf('
+									DELETE r, rf
+									FROM releases_rt r
+									LEFT OUTER JOIN releasefiles rf
+										ON rf.releaseid = r.id
+									WHERE r1.id = %s',
+									$identifiers['i']));
 			}
 		}
 	}

@@ -18,6 +18,7 @@ class ReleaseFiles
 	public function __construct($settings = null)
 	{
 		$this->pdo = ($settings instanceof Settings ? $settings : new Settings());
+		$this->sphinxSearch = new SphinxSearch();
 	}
 
 	/**
@@ -62,6 +63,7 @@ class ReleaseFiles
 	 */
 	public function delete($id)
 	{
+		
 		return $this->pdo->queryExec(sprintf("DELETE FROM releasefiles WHERE releaseid = %d", $id));
 	}
 
@@ -89,7 +91,7 @@ class ReleaseFiles
 		);
 
 		if ($duplicateCheck === false) {
-			return $this->pdo->queryInsert(
+			$insertID = $this->pdo->queryInsert(
 				sprintf("
 					INSERT INTO releasefiles
 					(releaseid, name, size, createddate, passworded)
@@ -100,6 +102,8 @@ class ReleaseFiles
 					$this->pdo->escapeString($size),
 					$this->pdo->from_unixtime($createdTime),
 					$hasPassword ));
+			$this->sphinxSearch->insertReleaseFiles(array('id' => $insertID, 'releaseid' => $id, 'name' => $this->pdo->escapeString(utf8_encode($name))));
+			return $insertID;
 		}
 		return 0;
 	}

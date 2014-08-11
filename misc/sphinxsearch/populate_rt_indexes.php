@@ -82,7 +82,7 @@ function releasefiles_rt()
 				'(%d, %d, %s),' ,
 				$row['id'],
 				$row['releaseid'],
-				$sphinx->sphinxQL->escapeString($row['name'])
+				$sphinx->sphinxQL->escapeString(utf8_encode($row['name']))
 			);
 			if ($i === 1000 || $i >= $total) {
 				$sphinx->sphinxQL->queryExec($string . rtrim($tempString, ','));
